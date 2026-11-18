@@ -25,8 +25,8 @@ export function SignupForm() {
           </select></div>
       </div>
       <div className="row">
-        <div><label>Choose your board colour 1</label><input name="color1" type="color" defaultValue="#7c3aed" /></div>
-        <div><label>Choose your board colour 2</label><input name="color2" type="color" defaultValue="#ec4899" /></div>
+        <div><label>Choose your board colour 1</label><input name="color1" type="color" defaultValue="#e11d48" /></div>
+        <div><label>Choose your board colour 2</label><input name="color2" type="color" defaultValue="#f59e0b" /></div>
       </div>
       <label><input type="checkbox" name="confirm" /> I am 18 or older and understand my birth date is locked and cannot be changed.</label>
       <p><button className="btn" disabled={pending}>{pending ? 'Creating…' : 'Create my board'}</button></p>

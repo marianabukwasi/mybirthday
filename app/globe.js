@@ -34,7 +34,7 @@ export function CelebrationGlobe({ boards }) {
 
     const pins = boards.map((b, i) => {
       const c = COUNTRY_COORDS[String(b.country || '').toLowerCase()] || [20 + (i * 17) % 45, -60 + (i * 47) % 140];
-      return { ...b, lat: c[0], lng: c[1], color: b.phase === 'reveal' ? '#ec4899' : '#38bdf8' };
+      return { ...b, lat: c[0], lng: c[1], color: b.phase === 'reveal' ? '#fbbf24' : '#fb7185' };
     });
 
     let raf;
@@ -43,15 +43,15 @@ export function CelebrationGlobe({ boards }) {
       ctx.clearRect(0, 0, w, h);
 
       const grad = ctx.createRadialGradient(cx - 35, cy - 35, 16, cx, cy, r);
-      grad.addColorStop(0, '#312e81');
-      grad.addColorStop(0.7, '#1e1b4b');
-      grad.addColorStop(1, '#0f172a');
+      grad.addColorStop(0, '#44403c');
+      grad.addColorStop(0.7, '#292524');
+      grad.addColorStop(1, '#1c1917');
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.fillStyle = grad;
       ctx.fill();
       ctx.lineWidth = 2;
-      ctx.strokeStyle = 'rgba(236, 72, 153, 0.45)';
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.45)';
       ctx.stroke();
 
       ctx.strokeStyle = 'rgba(255,255,255,0.09)';
@@ -130,10 +130,10 @@ export function CelebrationGlobe({ boards }) {
   }, [boards, router]);
 
   return (
-    <div style={{ background: 'linear-gradient(160deg,#0f172a,#1e1b4b,#3b0764)', borderRadius: 18, padding: '1rem', color: '#fff', textAlign: 'center' }}>
-      <div style={{ fontSize: '.82rem', fontWeight: 700, color: '#f472b6' }}>🌍 Live Celebration Globe</div>
+    <div style={{ background: '#1c1917', borderRadius: 18, padding: '1rem', color: '#fff', textAlign: 'center' }}>
+      <div style={{ fontSize: '.82rem', fontWeight: 700, color: '#fbbf24' }}>🌍 Live Celebration Globe</div>
       <canvas ref={canvasRef} width={310} height={310} style={{ maxWidth: '100%', cursor: 'grab' }} />
-      <div style={{ fontSize: '.78rem', color: '#cbd5e1' }}>{tip}</div>
+      <div style={{ fontSize: '.78rem', color: '#d6d3d1' }}>{tip}</div>
     </div>
   );
 }
