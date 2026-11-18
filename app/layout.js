@@ -1,6 +1,7 @@
 import './globals.css';
 import Link from 'next/link';
 import { currentUser } from '../lib/auth';
+import { db } from '../lib/db';
 import { logout } from './actions';
 
 export const metadata = {
@@ -18,6 +19,9 @@ export const metadata = {
 
 export default async function RootLayout({ children }) {
   const user = await currentUser();
+  const unread = user
+    ? db.prepare('SELECT COUNT(*) c FROM notifications WHERE user_id=? AND is_read=0').get(user.id).c
+    : 0;
   return (
     <html lang="en">
       <body>
@@ -25,11 +29,13 @@ export default async function RootLayout({ children }) {
           <aside className="side">
             <Link className="brand" href="/">mybirthday<span>.life</span></Link>
             <Link className="nav" href="/">Home</Link>
-            <Link className="nav" href="/boards">Boards open now</Link>
+            <Link className="nav" href="/explore">Explore</Link>
+            <Link className="nav" href="/boards">Celebrations</Link>
             <Link className="nav" href="/deals">Birthday deals</Link>
             {user ? (
               <>
-                <Link className="nav" href="/dashboard">My board</Link>
+                <Link className="nav" href="/notifications">Notifications {unread > 0 ? `(${unread})` : ''}</Link>
+                <Link className="nav" href="/dashboard">My profile &amp; board</Link>
                 <form action={logout}><button className="nav" type="submit">Log out</button></form>
               </>
             ) : (

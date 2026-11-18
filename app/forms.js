@@ -60,7 +60,14 @@ export function WishForm({ slug, requests, ownerName }) {
         </>
       )}
       <label>Type of wish</label>
-      <select name="kind"><option value="text">Text note</option><option value="photo">Photo / postcard</option><option value="voice">Voice note (up to 60s)</option><option value="video">Video (up to 60s)</option></select>
+      <select name="kind">
+        <option value="text">Text message</option>
+        <option value="photo">Photograph</option>
+        <option value="postcard">Digital postcard</option>
+        <option value="voice">Voice note (up to 60s)</option>
+        <option value="video">Video (up to 60s)</option>
+        <option value="giftcard">Gift card</option>
+      </select>
       <label>Attach file (for photo, voice or video)</label>
       <input name="media" type="file" accept="image/*,audio/*,video/*" />
       <label>Your message (written by you, no AI)</label>

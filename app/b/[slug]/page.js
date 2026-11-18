@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { db } from '../../../lib/db';
 import { currentUser } from '../../../lib/auth';
-import { getPhase, daysUntilBirthday, canSendWishes, cashEnabledFor } from '../../../lib/phase';
+import { getPhase, daysUntilBirthday, canSendWishes, cashEnabledFor, getAge, formatBirthdayLabel } from '../../../lib/phase';
 import { WishForm, CashGiftForm } from '../../forms';
 import { BirthdayCountdown } from '../../countdown';
 
@@ -28,8 +28,18 @@ export default async function BoardPage({ params }) {
   const phase = getPhase(b.birth_date, b.time_zone);
   const days = daysUntilBirthday(b.birth_date, b.time_zone);
   const first = b.name.split(' ')[0];
+  const age = getAge(b.birth_date);
+  const bdayLabel = formatBirthdayLabel(b.birth_date);
+  const canSee = (vis) => isOwner || vis === 'public' || (vis === 'friends' && !!me);
+  const showAge = canSee(b.vis_age || 'private') && age !== null;
+  const showBirthday = canSee(b.vis_birthday || 'public');
+  const showCountry = canSee(b.vis_country || 'public');
+  const showBio = canSee(b.vis_bio || 'public');
+  const showLikes = canSee(b.vis_likes || 'public');
+  const showWishlist = canSee(b.vis_wishlist || 'public');
+
   const requests = db.prepare('SELECT id, title FROM requests WHERE board_id=?').all(b.id).map(r => ({ id: r.id, title: r.title }));
-  const wishlist = db.prepare('SELECT * FROM wishlist WHERE board_id=?').all(b.id);
+  const wishlist = showWishlist ? db.prepare('SELECT * FROM wishlist WHERE board_id=?').all(b.id) : [];
   const count = db.prepare("SELECT COUNT(*) c FROM wishes WHERE board_id=? AND status!='removed'").get(b.id).c;
   const open = canSendWishes(phase, b.allow_late);
   // Contents are never sent to the page before the reveal. Only a count.
@@ -43,8 +53,14 @@ export default async function BoardPage({ params }) {
       <div className="hero" style={{ borderColor: b.color1 }}>
         <span className="pill">{{ supporter: 'Archived', countdown: `Countdown · ${days} days`, vault: `🎁 Collecting Birthday Surprises · ${days} days to go`, reveal: '🎉 It\'s the birthday!', afterglow: 'Afterglow' }[phase]}</span>
         <h1 style={{ fontSize: '2.2rem', background: `linear-gradient(135deg,${b.color1},${b.color2})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{b.name}</h1>
-        <p className="muted">{b.country} · {b.bio}</p>
-        {b.likes && <p>{b.likes.split(',').map(l => <span key={l} className="pill" style={{ marginRight: 6 }}>{l.trim()}</span>)}</p>}
+        <p className="muted">
+          {showCountry ? b.country : 'Global Celebrant'}
+          {showBirthday ? ` · 🎂 ${bdayLabel}` : ''}
+          {showAge ? ` · Turning ${age + (days === 0 ? 0 : 1)}` : ''}
+          {showBio && b.bio ? ` · ${b.bio}` : ''}
+        </p>
+        {showLikes && b.likes && <p>{b.likes.split(',').map(l => <span key={l} className="pill" style={{ marginRight: 6 }}>{l.trim()}</span>)}</p>}
+        {showLikes && b.favorites && <p className="note"><strong>Favourite things:</strong> {b.favorites}</p>}
         <BirthdayCountdown birthDate={b.birth_date} timeZone={b.time_zone} ownerName={first} phase={phase} wishCount={count} color1={b.color1} color2={b.color2} />
         <p style={{ marginTop: '1rem', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <Link className="btn pink" href={`/b/${b.slug}/live`}>🕯️ Join Live Celebration Room</Link>
@@ -79,9 +95,14 @@ export default async function BoardPage({ params }) {
       </div>
 
       <div className="card">
-        <h3>Wishlist &amp; Cash Gifts</h3>
-        {wishlist.length === 0 && <p className="muted">No wishlist items yet.</p>}
-        <ul>{wishlist.map(w => <li key={w.id}>{w.url ? <a href={w.url} target="_blank" rel="noopener noreferrer nofollow">{w.title}</a> : w.title}</li>)}</ul>
+        <h3>Wishlist &amp; Monetary Contributions</h3>
+        {!showWishlist ? (
+          <p className="muted">Wishlist is private.</p>
+        ) : wishlist.length === 0 ? (
+          <p className="muted">No wishlist items yet.</p>
+        ) : (
+          <ul>{wishlist.map(w => <li key={w.id}>{w.url ? <a href={w.url} target="_blank" rel="noopener noreferrer nofollow">{w.title}</a> : w.title}</li>)}</ul>
+        )}
         {!cashEnabledFor(b.country) ? (
           <p className="note">Cash gifts are not available for boards in {b.country} yet. Wishes, photos, voice notes and videos work in full.</p>
         ) : (

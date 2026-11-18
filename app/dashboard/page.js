@@ -39,16 +39,39 @@ export default async function Dashboard() {
         </div>
       )}
 
-      <div className="card"><h3>Your board</h3>
+      <div className="card"><h3>Your Profile &amp; Board Customisation</h3>
         <form action={saveProfile}>
-          <label>Bio</label><textarea name="bio" rows={2} defaultValue={b.bio} />
-          <label>Likes (comma separated)</label><input name="likes" defaultValue={b.likes} />
-          <div className="row"><div><label>Colour 1</label><input type="color" name="color1" defaultValue={b.color1} /></div><div><label>Colour 2</label><input type="color" name="color2" defaultValue={b.color2} /></div></div>
-          <label><input type="checkbox" name="is_public" defaultChecked={!!b.is_public} /> Public board (untick for private)</label>
+          <label>Biography / About</label><textarea name="bio" rows={2} defaultValue={b.bio} />
+          <div className="row">
+            <div><label>Interests &amp; likes (comma separated)</label><input name="likes" defaultValue={b.likes} placeholder="Coffee, Cold plunges, Jazz" /></div>
+            <div><label>Favourite things (comma separated)</label><input name="favorites" defaultValue={b.favorites || ''} placeholder="Cardamom buns, Vinyl records" /></div>
+          </div>
+          <div className="row"><div><label>Board colour 1</label><input type="color" name="color1" defaultValue={b.color1} /></div><div><label>Board colour 2</label><input type="color" name="color2" defaultValue={b.color2} /></div></div>
+          <label>Live Celebration Room Theme</label>
+          <select name="live_title" defaultValue={b.live_title || 'Cut the Cake With Me'}>
+            <option>Cut the Cake With Me</option>
+            <option>Birthday Dinner</option>
+            <option>Birthday Party</option>
+            <option>Celebrate With Me</option>
+            <option>Birthday Countdown</option>
+          </select>
+
+          <h4 style={{ margin: '1rem 0 .35rem' }}>Field-Level Privacy Controls</h4>
+          <p className="note" style={{ marginTop: 0 }}>Control who can see each part of your profile. Your date of birth remains locked underneath to protect your cycle and deals.</p>
+          <div className="row">
+            <div><label>Age visibility</label><select name="vis_age" defaultValue={b.vis_age || 'private'}><option value="public">Public</option><option value="friends">Friends only</option><option value="private">Private (Hidden)</option></select></div>
+            <div><label>Birthday date visibility</label><select name="vis_birthday" defaultValue={b.vis_birthday || 'public'}><option value="public">Public</option><option value="friends">Friends only</option><option value="private">Private (Hidden)</option></select></div>
+            <div><label>Country visibility</label><select name="vis_country" defaultValue={b.vis_country || 'public'}><option value="public">Public</option><option value="friends">Friends only</option><option value="private">Private (Hidden)</option></select></div>
+            <div><label>Biography visibility</label><select name="vis_bio" defaultValue={b.vis_bio || 'public'}><option value="public">Public</option><option value="friends">Friends only</option><option value="private">Private (Hidden)</option></select></div>
+            <div><label>Interests &amp; favourites visibility</label><select name="vis_likes" defaultValue={b.vis_likes || 'public'}><option value="public">Public</option><option value="friends">Friends only</option><option value="private">Private (Hidden)</option></select></div>
+            <div><label>Wishlist visibility</label><select name="vis_wishlist" defaultValue={b.vis_wishlist || 'public'}><option value="public">Public</option><option value="friends">Friends only</option><option value="private">Private (Hidden)</option></select></div>
+          </div>
+
+          <label><input type="checkbox" name="is_public" defaultChecked={!!b.is_public} /> Public birthday board (untick for private)</label>
           <label><input type="checkbox" name="allow_late" defaultChecked={!!b.allow_late} /> Allow late wishes during the 30 days after my birthday</label>
-          <p><button className="btn">Save</button></p>
+          <p><button className="btn">Save profile &amp; privacy</button></p>
         </form>
-        <p className="note">Birth date: {u.birth_date} (locked) · {u.time_zone}</p>
+        <p className="note">Locked birth date: {u.birth_date} · {u.time_zone}</p>
       </div>
 
       <div className="grid">

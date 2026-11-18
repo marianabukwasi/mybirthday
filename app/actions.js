@@ -59,11 +59,29 @@ async function mustOwn() {
 export async function saveProfile(form) {
   const { board } = await mustOwn();
   const hex = (v, d) => (/^#[0-9a-f]{6}$/i.test(v) ? v : d);
-  db.prepare('UPDATE boards SET bio=?, likes=?, color1=?, color2=?, is_public=?, allow_late=? WHERE id=?').run(
-    String(form.get('bio') || '').slice(0, 500), String(form.get('likes') || '').slice(0, 300),
-    hex(form.get('color1'), '#7c3aed'), hex(form.get('color2'), '#ec4899'),
-    form.get('is_public') ? 1 : 0, form.get('allow_late') ? 1 : 0, board.id);
+  const vis = (v, d = 'public') => (['public', 'friends', 'private'].includes(String(v)) ? String(v) : d);
+  db.prepare(
+    `UPDATE boards SET bio=?, likes=?, favorites=?, color1=?, color2=?, is_public=?, allow_late=?, live_title=?,
+     vis_age=?, vis_birthday=?, vis_country=?, vis_bio=?, vis_likes=?, vis_wishlist=? WHERE id=?`
+  ).run(
+    String(form.get('bio') || '').slice(0, 500),
+    String(form.get('likes') || '').slice(0, 300),
+    String(form.get('favorites') || '').slice(0, 300),
+    hex(form.get('color1'), '#7c3aed'),
+    hex(form.get('color2'), '#ec4899'),
+    form.get('is_public') ? 1 : 0,
+    form.get('allow_late') ? 1 : 0,
+    String(form.get('live_title') || 'Cut the Cake With Me').slice(0, 80),
+    vis(form.get('vis_age'), 'private'),
+    vis(form.get('vis_birthday'), 'public'),
+    vis(form.get('vis_country'), 'public'),
+    vis(form.get('vis_bio'), 'public'),
+    vis(form.get('vis_likes'), 'public'),
+    vis(form.get('vis_wishlist'), 'public'),
+    board.id
+  );
   revalidatePath('/dashboard');
+  revalidatePath(`/b/${board.slug}`);
 }
 
 export async function addRequest(form) {
@@ -100,11 +118,11 @@ export async function sendWish(prev, form) {
   if (!name || !/^\S+@\S+\.\S+$/.test(email)) return { error: 'Please enter your name and a valid email.' };
   if (!isAdult(gbirth)) return { error: 'Guests must be 18 or older.' };
   if (!form.get('license')) return { error: 'Please accept the media licence to continue.' };
-  if (!['text', 'photo', 'voice', 'video'].includes(kind)) return { error: 'Unknown wish type.' };
-  if (kind === 'text' && !message) return { error: 'Please write your wish.' };
+  if (!['text', 'photo', 'postcard', 'voice', 'video', 'giftcard'].includes(kind)) return { error: 'Unknown wish type.' };
+  if ((kind === 'text' || kind === 'postcard' || kind === 'giftcard') && !message) return { error: 'Please write your message.' };
 
   let mediaPath = '';
-  if (kind !== 'text') {
+  if (kind === 'photo' || kind === 'voice' || kind === 'video') {
     const file = form.get('media');
     if (!file || typeof file === 'string' || file.size === 0) return { error: `Please attach your ${kind}.` };
     if (!MIME_OK[kind].test(file.type)) return { error: `That file is not a valid ${kind}.` };
@@ -118,9 +136,27 @@ export async function sendWish(prev, form) {
     `INSERT INTO wishes (board_id, guest_name, guest_email, guest_birth_date, guest_city, kind, message, media_path, request_title)
      VALUES (?,?,?,?,?,?,?,?,?)`
   ).run(row.id, name, email, gbirth, city, kind, message, mediaPath, String(form.get('request_title') || '').slice(0, 120));
+
+  // §7 Anonymous activity notification (never reveals sender identity or message content)
+  const kindNoun = {
+    text: 'sent you a birthday message',
+    photo: 'shared a photograph with you',
+    postcard: 'sent you a digital postcard',
+    voice: 'recorded a voice message for your birthday',
+    video: 'shared a birthday video with you',
+    giftcard: 'sent you a gift card',
+  }[kind];
+  const fromPlace = city ? ` from ${city}` : '';
+  db.prepare('INSERT INTO notifications (user_id, kind, message) VALUES (?,?,?)').run(
+    row.user_id,
+    'activity',
+    `Someone ${kindNoun}${fromPlace}.`
+  );
+
   queueEmail(email, `Your birthday wish for ${row.owner_name} is wrapped!`,
     `Thank you ${name}! Your wish is wrapped up as a surprise until the birthday. We'll remind you when your own birthday celebration opens.`);
   revalidatePath(`/b/${slug}`);
+  revalidatePath('/notifications');
   return { ok: true };
 }
 
@@ -207,4 +243,10 @@ export async function purchaseKeepsake(form) {
   const amountCents = kind === 'keepsake_card' ? 1200 : 1900;
   db.prepare('INSERT INTO orders (board_id, kind, amount_cents, status) VALUES (?,?,?,?)').run(row.id, kind, amountCents, 'paid');
   revalidatePath(`/b/${slug}/keepsake`);
+}
+
+export async function markNotificationsRead() {
+  const { u } = await mustOwn();
+  db.prepare('UPDATE notifications SET is_read=1 WHERE user_id=?').run(u.id);
+  revalidatePath('/notifications');
 }

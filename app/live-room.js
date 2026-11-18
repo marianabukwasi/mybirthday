@@ -2,21 +2,15 @@
 import { useEffect, useState } from 'react';
 import { sendLiveEvent } from './actions';
 
-const GIFTS = [
-  { id: 'slice', emoji: '🍰', name: 'Slice of Cake', cents: 300 },
-  { id: 'toast', emoji: '🥂', name: 'Champagne Toast', cents: 500 },
-  { id: 'fireworks', emoji: '🎆', name: 'Sky Fireworks', cents: 1000 },
-  { id: 'crown', emoji: '👑', name: 'Birthday Crown', cents: 1500 },
-];
-
-export function LiveRoomClient({ slug, ownerName, cashEnabled, initialEvents, color1, color2 }) {
+export function LiveRoomClient({ slug, ownerName, liveTitle = 'Cut the Cake With Me', initialEvents, color1, color2 }) {
   const [events, setEvents] = useState(initialEvents);
   const [candlesOut, setCandlesOut] = useState(() => initialEvents.some(e => e.kind === 'candles'));
   const [cakeCut, setCakeCut] = useState(() => initialEvents.some(e => e.kind === 'cake'));
   const [senderName, setSenderName] = useState('');
   const [senderCity, setSenderCity] = useState('');
   const [cheerText, setCheerText] = useState('');
-  const [roomSecs, setRoomSecs] = useState(30 * 60); // 30-minute time-boxed live room
+  const [copied, setCopied] = useState(false);
+  const [roomSecs, setRoomSecs] = useState(60 * 60); // §11: Up to 60-minute live session
   const [floating, setFloating] = useState([]);
 
   useEffect(() => {
@@ -74,12 +68,26 @@ export function LiveRoomClient({ slug, ownerName, cashEnabled, initialEvents, co
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
           <div>
-            <span className="pill pink">● LIVE 30-MIN ROOM</span>
-            <h2 style={{ color: '#fff', marginTop: 6 }}>Cut the Cake with {ownerName}</h2>
+            <span className="pill pink">● LIVE · UP TO 60 MIN</span>
+            <h2 style={{ color: '#fff', marginTop: 6 }}>{liveTitle} · with {ownerName}</h2>
           </div>
-          <div style={{ background: 'rgba(0,0,0,0.35)', padding: '.45rem .9rem', borderRadius: 12, textAlign: 'center' }}>
-            <div style={{ fontSize: '.7rem', color: '#cbd5e1' }}>Room Closes In</div>
-            <strong style={{ fontSize: '1.3rem', color: '#f472b6' }}>{mins}:{secs}</strong>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button
+              type="button"
+              className="btn ghost"
+              style={{ padding: '.4rem .8rem', fontSize: '.78rem' }}
+              onClick={() => {
+                navigator.clipboard?.writeText(window.location.href);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2500);
+              }}
+            >
+              {copied ? '✓ Link Copied!' : '🔗 Share Live Link'}
+            </button>
+            <div style={{ background: 'rgba(0,0,0,0.35)', padding: '.45rem .9rem', borderRadius: 12, textAlign: 'center' }}>
+              <div style={{ fontSize: '.7rem', color: '#cbd5e1' }}>Session Time</div>
+              <strong style={{ fontSize: '1.3rem', color: '#f472b6' }}>{mins}:{secs}</strong>
+            </div>
           </div>
         </div>
 
@@ -128,33 +136,25 @@ export function LiveRoomClient({ slug, ownerName, cashEnabled, initialEvents, co
           </div>
         </div>
 
-        {/* Live Gifts */}
+        {/* Celebration Reactions (No credit wallets or paid live-gifting at launch per §11) */}
         <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 14, padding: '1rem' }}>
-          <strong style={{ display: 'block', marginBottom: '.4rem' }}>Send a Live Celebration Gift</strong>
-          {!cashEnabled ? (
-            <div style={{ fontSize: '.82rem', color: '#e2e8f0' }}>
-              Paid live gifts are currently off for this country. Send free birthday cheers in the stream!
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '.5rem' }}>
-              {GIFTS.map(g => (
-                <button
-                  key={g.id}
-                  type="button"
-                  className="btn ghost"
-                  style={{ flexDirection: 'column', display: 'flex', alignItems: 'center', padding: '.55rem', borderRadius: 12 }}
-                  onClick={() => {
-                    spawnFloat(g.emoji);
-                    postEvent({ kind: 'gift', gift_type: g.name, amount_cents: g.cents, message: `Sent ${g.emoji} ${g.name} ($${(g.cents / 100).toFixed(0)})` });
-                  }}
-                >
-                  <span style={{ fontSize: '1.35rem' }}>{g.emoji}</span>
-                  <span style={{ fontSize: '.74rem' }}>{g.name}</span>
-                  <span style={{ fontSize: '.72rem', color: '#ec4899' }}>${(g.cents / 100).toFixed(0)}</span>
-                </button>
-              ))}
-            </div>
-          )}
+          <strong style={{ display: 'block', marginBottom: '.45rem' }}>Send a Live Celebration Reaction</strong>
+          <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap' }}>
+            {[['🥳', 'Cheer'], ['🥂', 'Raise a Toast'], ['🎶', 'Sing Along'], ['💖', 'Send Love']].map(([emoji, label]) => (
+              <button
+                key={label}
+                type="button"
+                className="btn ghost"
+                style={{ padding: '.45rem .85rem', fontSize: '.82rem' }}
+                onClick={() => {
+                  spawnFloat(emoji);
+                  postEvent({ kind: 'cheer', message: `${emoji} ${label}!` });
+                }}
+              >
+                {emoji} {label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

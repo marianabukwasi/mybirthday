@@ -23,7 +23,7 @@ export default async function LiveRoomPage({ params }) {
       <LiveRoomClient
         slug={b.slug}
         ownerName={b.name.split(' ')[0]}
-        cashEnabled={cashEnabledFor(b.country)}
+        liveTitle={b.live_title || 'Cut the Cake With Me'}
         initialEvents={initialEvents}
         color1={b.color1}
         color2={b.color2}

@@ -319,15 +319,19 @@ export function BirthdayCountdown({ birthDate, timeZone, ownerName, phase, wishC
   const [msLeft, setMsLeft] = useState(() => msUntilBirthdayMidnight(birthDate, timeZone));
   const [demoSecs, setDemoSecs] = useState(null);
   const [celebrating, setCelebrating] = useState(false);
+  const [revealStage, setRevealStage] = useState('banner'); // 'banner' (3s) -> 'prompt'
   const [dismissed, setDismissed] = useState(false);
   const triggeredRef = useRef(false);
   const lastSpokenRef = useRef(null);
 
   const triggerFinale = () => {
     setCelebrating(true);
+    setRevealStage('banner');
     setDismissed(false);
     launchFireworksAndConfetti(canvasRef.current);
     playNaturalBirthdayCelebration(() => {});
+    // §8: Show HAPPY BIRTHDAY [NAME] for ~3 seconds, then switch to "These people wished you..."
+    setTimeout(() => setRevealStage('prompt'), 3000);
   };
 
   useEffect(() => {
@@ -416,23 +420,30 @@ export function BirthdayCountdown({ birthDate, timeZone, ownerName, phase, wishC
                 </div>
               )}
             </div>
+          ) : revealStage === 'banner' ? (
+            <div className="takeover-inner">
+              <div className="takeover-kicker">🎆 CELEBRATION UNLOCKED 🎆</div>
+              <h1 className="takeover-happy">HAPPY BIRTHDAY<br />{ownerName.toUpperCase()}</h1>
+              <p className="takeover-sub">🎶 Happy Birthday to you…</p>
+            </div>
           ) : (
             <div className="takeover-inner">
-              <div className="takeover-kicker">🎆 POP! FIREWORKS &amp; BIRTHDAY SONG 🎆</div>
-              <h1 className="takeover-happy">HAPPY BIRTHDAY,<br />{ownerName.toUpperCase()}!</h1>
-              <p className="takeover-sub">🎶 Singing Happy Birthday to you…</p>
+              <div className="takeover-kicker">🎁 YOUR BIRTHDAY SURPRISES ARE READY 🎁</div>
+              <h1 className="takeover-happy" style={{ fontSize: 'clamp(2rem, 5vw, 3.4rem)' }}>
+                These people wished you a Happy Birthday. Open to see.
+              </h1>
               <div
                 style={{
-                  marginTop: '1.25rem',
+                  marginTop: '1rem',
                   background: 'rgba(255,255,255,0.12)',
                   border: `1px solid ${color2}`,
                   borderRadius: '16px',
-                  padding: '1rem 1.4rem',
-                  fontSize: '1.1rem',
+                  padding: '.9rem 1.3rem',
+                  fontSize: '1.05rem',
                   fontWeight: 700,
                 }}
               >
-                🌍 {wishCount} {wishCount === 1 ? 'person has' : 'people have'} wished you a Happy Birthday from around the world — see them now!
+                🌍 {wishCount} {wishCount === 1 ? 'person has' : 'people have'} wished you a Happy Birthday from around the world
               </div>
               <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                 <button
@@ -446,10 +457,10 @@ export function BirthdayCountdown({ birthDate, timeZone, ownerName, phase, wishC
                     document.getElementById('wishes-section')?.scrollIntoView({ behavior: 'smooth' });
                   }}
                 >
-                  🎁 See Your Birthday Wishes Now →
+                  🎁 Open to See Wishes →
                 </button>
                 <button type="button" className="btn ghost" onClick={triggerFinale}>
-                  🎆 Replay Fireworks &amp; Song
+                  🎆 Replay Reveal
                 </button>
               </div>
             </div>
