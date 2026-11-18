@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { db } from '../../../lib/db';
+import { db, UPLOAD_DIR } from '../../../lib/db';
 import { getPhase, vaultUnlocked } from '../../../lib/phase';
 import { currentUser } from '../../../lib/auth';
 
@@ -16,7 +16,7 @@ export async function GET(req, { params }) {
   const me = await currentUser();
   const phase = getPhase(w.birth_date, w.time_zone);
   if (!me || me.id !== w.user_id || !vaultUnlocked(phase)) return new Response('Not found', { status: 404 });
-  const file = path.join(process.cwd(), 'data', 'uploads', w.media_path);
+  const file = path.join(UPLOAD_DIR, w.media_path);
   if (!fs.existsSync(file)) return new Response('Not found', { status: 404 });
   const type = { photo: 'image/*', voice: 'audio/*', video: 'video/*' }[w.kind];
   const ext = path.extname(w.media_path).toLowerCase();

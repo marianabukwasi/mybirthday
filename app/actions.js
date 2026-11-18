@@ -4,7 +4,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { db } from '../lib/db';
+import { db, UPLOAD_DIR } from '../lib/db';
 import { hashPassword, verifyPassword, createSession, destroySession, currentUser, slugify, queueEmail } from '../lib/auth';
 import { getPhase, canSendWishes, isAdult, validTimeZone, cashEnabledFor } from '../lib/phase';
 import { recordCashGift } from '../lib/integrations';
@@ -109,10 +109,9 @@ export async function sendWish(prev, form) {
     if (!file || typeof file === 'string' || file.size === 0) return { error: `Please attach your ${kind}.` };
     if (!MIME_OK[kind].test(file.type)) return { error: `That file is not a valid ${kind}.` };
     if (file.size > MAX_BYTES[kind]) return { error: 'That file is too large.' };
-    const dir = path.join(process.cwd(), 'data', 'uploads');
-    fs.mkdirSync(dir, { recursive: true });
+    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
     mediaPath = crypto.randomBytes(16).toString('hex') + path.extname(file.name || '').slice(0, 8).replace(/[^.a-z0-9]/gi, '');
-    fs.writeFileSync(path.join(dir, mediaPath), Buffer.from(await file.arrayBuffer()));
+    fs.writeFileSync(path.join(UPLOAD_DIR, mediaPath), Buffer.from(await file.arrayBuffer()));
   }
 
   db.prepare(
@@ -145,7 +144,7 @@ export async function reportWish(form) {
 export async function deleteAccount() {
   const { u, board } = await mustOwn();
   const files = db.prepare("SELECT media_path FROM wishes WHERE board_id=? AND media_path!=''").all(board.id);
-  for (const f of files) fs.rmSync(path.join(process.cwd(), 'data', 'uploads', f.media_path), { force: true });
+  for (const f of files) fs.rmSync(path.join(UPLOAD_DIR, f.media_path), { force: true });
   db.prepare('DELETE FROM wishes WHERE board_id=?').run(board.id);
   db.prepare('DELETE FROM requests WHERE board_id=?').run(board.id);
   db.prepare('DELETE FROM wishlist WHERE board_id=?').run(board.id);
