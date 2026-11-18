@@ -55,14 +55,10 @@ export default async function Home() {
     <>
       <section className="hero hero-split">
         <div>
-          <span className="pill rose">Pure Positivity · People Should Be Celebrated</span>
-          <h1 style={{ fontSize: 'clamp(1.9rem, 3.2vw, 2.7rem)', marginTop: '.6rem' }}>
-            A social world built entirely around birthdays.
+          <h1 style={{ fontSize: 'clamp(2.2rem, 4vw, 3.2rem)', lineHeight: 1.1 }}>
+            Everyone deserves to be celebrated.
           </h1>
-          <p className="muted" style={{ maxWidth: '52ch' }}>
-            Celebrate friends and family across time zones with written wishes, photographs, postcards, voice notes, short videos, and live cake-cutting moments—kept secret in an Open Vault until midnight.
-          </p>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: '1.1rem' }}>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: '1.35rem' }}>
             <Link className="btn" href={me ? '/profile' : '/signup'}>
               {me ? 'Go to My Profile' : '🎂 Create my profile'}
             </Link>
