@@ -34,7 +34,7 @@ export default async function RootLayout({ children }) {
         <div className="shell">
           <aside className="side" aria-label="Primary Navigation">
             <Link className="brand" href="/">
-              <span className="brand-dot" />
+              <span className="brand-cake" aria-hidden="true">🎂</span>
               <span>mybirthday<span className="brand-rose">.life</span></span>
             </Link>
 
@@ -79,7 +79,7 @@ export default async function RootLayout({ children }) {
           <div className="content-wrap">
             <header className="mobile-header">
               <Link className="brand" href="/">
-                <span className="brand-dot" />
+                <span className="brand-cake" aria-hidden="true">🎂</span>
                 <span>mybirthday<span className="brand-rose">.life</span></span>
               </Link>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
