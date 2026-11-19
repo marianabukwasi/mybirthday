@@ -8,6 +8,7 @@ const COUNTRY_COORDS = {
   kenya: [-1.3, 36.8],
   uganda: [0.3, 32.6],
   japan: [35.0, 135.7],
+  luxembourg: [49.6, 6.1],
   'united states': [40.7, -74.0],
   usa: [40.7, -74.0],
   'united kingdom': [51.5, -0.1],
@@ -21,7 +22,9 @@ const COUNTRY_COORDS = {
 export function CelebrationGlobe({ boards }) {
   const canvasRef = useRef(null);
   const router = useRouter();
-  const [tip, setTip] = useState(boards[0] ? `${boards[0].name} · ${boards[0].country}` : 'Drag to rotate the celebration globe');
+  const [tip, setTip] = useState(
+    boards[0] ? `${boards[0].name} · ${boards[0].country}` : 'Drag to rotate · Click any celebration pin'
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -32,6 +35,12 @@ export function CelebrationGlobe({ boards }) {
     let lastX = 0;
     let rendered = [];
 
+    const stars = Array.from({ length: 48 }, (_, i) => ({
+      x: ((i * 173) % 820),
+      y: ((i * 97) % 340),
+      r: (i % 3 === 0) ? 1.6 : 1,
+    }));
+
     const pins = boards.map((b, i) => {
       const c = COUNTRY_COORDS[String(b.country || '').toLowerCase()] || [20 + (i * 17) % 45, -60 + (i * 47) % 140];
       return { ...b, lat: c[0], lng: c[1], color: b.phase === 'reveal' ? '#fbbf24' : '#fb7185' };
@@ -39,9 +48,18 @@ export function CelebrationGlobe({ boards }) {
 
     let raf;
     function draw() {
-      const w = canvas.width, h = canvas.height, cx = w / 2, cy = h / 2, r = 135;
+      const w = canvas.width, h = canvas.height, cx = w / 2, cy = h / 2, r = 132;
       ctx.clearRect(0, 0, w, h);
 
+      // Subtle celebratory starlight across the wide banner
+      ctx.fillStyle = 'rgba(251, 191, 36, 0.35)';
+      stars.forEach(s => {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Globe sphere
       const grad = ctx.createRadialGradient(cx - 35, cy - 35, 16, cx, cy, r);
       grad.addColorStop(0, '#44403c');
       grad.addColorStop(0.7, '#292524');
@@ -51,10 +69,10 @@ export function CelebrationGlobe({ boards }) {
       ctx.fillStyle = grad;
       ctx.fill();
       ctx.lineWidth = 2;
-      ctx.strokeStyle = 'rgba(251, 191, 36, 0.45)';
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.5)';
       ctx.stroke();
 
-      ctx.strokeStyle = 'rgba(255,255,255,0.09)';
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
       ctx.lineWidth = 1;
       [-45, 0, 45].forEach(deg => {
         const rad = (deg * Math.PI) / 180;
@@ -80,7 +98,7 @@ export function CelebrationGlobe({ boards }) {
           const y = cy - Math.sin(latR) * r;
           rendered.push({ ...p, x, y });
           ctx.beginPath();
-          ctx.arc(x, y, 8, 0, Math.PI * 2);
+          ctx.arc(x, y, 9, 0, Math.PI * 2);
           ctx.fillStyle = p.color + '44';
           ctx.fill();
           ctx.beginPath();
@@ -104,14 +122,14 @@ export function CelebrationGlobe({ boards }) {
       const rect = canvas.getBoundingClientRect();
       const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
       const my = (e.clientY - rect.top) * (canvas.height / rect.height);
-      const hit = rendered.find(p => Math.hypot(p.x - mx, p.y - my) < 14);
+      const hit = rendered.find(p => Math.hypot(p.x - mx, p.y - my) < 16);
       if (hit) setTip(`${hit.name} · ${hit.country}`);
     };
     const onClick = e => {
       const rect = canvas.getBoundingClientRect();
       const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
       const my = (e.clientY - rect.top) * (canvas.height / rect.height);
-      const hit = rendered.find(p => Math.hypot(p.x - mx, p.y - my) < 16);
+      const hit = rendered.find(p => Math.hypot(p.x - mx, p.y - my) < 18);
       if (hit) router.push(`/b/${hit.slug}`);
     };
 
@@ -130,10 +148,12 @@ export function CelebrationGlobe({ boards }) {
   }, [boards, router]);
 
   return (
-    <div style={{ background: '#1c1917', borderRadius: 18, padding: '1rem', color: '#fff', textAlign: 'center' }}>
-      <div style={{ fontSize: '.82rem', fontWeight: 700, color: '#fbbf24' }}>🌍 Live Celebration Globe</div>
-      <canvas ref={canvasRef} width={310} height={310} style={{ maxWidth: '100%', cursor: 'grab' }} />
-      <div style={{ fontSize: '.78rem', color: '#d6d3d1' }}>{tip}</div>
+    <div style={{ background: '#1c1917', borderRadius: 20, padding: '1rem 1.25rem', color: '#fff', textAlign: 'center', width: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
+        <span style={{ fontSize: '.85rem', fontWeight: 700, color: '#fbbf24' }}>🌍 Live Celebration Globe</span>
+        <span style={{ fontSize: '.78rem', color: '#d6d3d1' }}>{tip}</span>
+      </div>
+      <canvas ref={canvasRef} width={820} height={320} style={{ width: '100%', height: 'auto', display: 'block', cursor: 'grab' }} />
     </div>
   );
 }

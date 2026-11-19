@@ -63,7 +63,7 @@ export default async function Home() {
           </Link>
           <Link className="btn ghost" href="/explore">✨ Explore the world</Link>
         </div>
-        <div style={{ width: '100%', maxWidth: 420 }}>
+        <div style={{ width: '100%' }}>
           <CelebrationGlobe boards={publicOpen} />
         </div>
       </section>
