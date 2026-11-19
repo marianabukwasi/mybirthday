@@ -53,19 +53,19 @@ export default async function Home() {
 
   return (
     <>
-      <section className="hero hero-split">
-        <div>
-          <h1 style={{ fontSize: 'clamp(2.2rem, 4vw, 3.2rem)', lineHeight: 1.1 }}>
-            Everyone deserves to be celebrated.
-          </h1>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: '1.35rem' }}>
-            <Link className="btn" href={me ? '/profile' : '/signup'}>
-              {me ? 'Go to My Profile' : '🎂 Create my profile'}
-            </Link>
-            <Link className="btn ghost" href="/explore">✨ Explore the world</Link>
-          </div>
+      <section className="hero" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem' }}>
+        <h1 style={{ fontSize: 'clamp(2.2rem, 4.5vw, 3.4rem)', lineHeight: 1.1, maxWidth: '18ch', margin: 0 }}>
+          Everyone deserves to be celebrated.
+        </h1>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <Link className="btn" href={me ? '/profile' : '/signup'}>
+            {me ? 'Go to My Profile' : '🎂 Create my profile'}
+          </Link>
+          <Link className="btn ghost" href="/explore">✨ Explore the world</Link>
         </div>
-        <CelebrationGlobe boards={publicOpen} />
+        <div style={{ width: '100%', maxWidth: 420 }}>
+          <CelebrationGlobe boards={publicOpen} />
+        </div>
       </section>
 
       {/* Live Platform Stats */}
