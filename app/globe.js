@@ -43,7 +43,7 @@ export function CelebrationGlobe({ boards }) {
 
     const pins = boards.map((b, i) => {
       const c = COUNTRY_COORDS[String(b.country || '').toLowerCase()] || [20 + (i * 17) % 45, -60 + (i * 47) % 140];
-      return { ...b, lat: c[0], lng: c[1], color: b.phase === 'reveal' ? '#fbbf24' : '#fb7185' };
+      return { ...b, lat: c[0], lng: c[1], color: b.phase === 'reveal' ? '#38bdf8' : '#a78bfa' };
     });
 
     let raf;
@@ -52,7 +52,7 @@ export function CelebrationGlobe({ boards }) {
       ctx.clearRect(0, 0, w, h);
 
       // Subtle celebratory starlight across the wide banner
-      ctx.fillStyle = 'rgba(251, 191, 36, 0.35)';
+      ctx.fillStyle = 'rgba(125, 211, 252, 0.4)';
       stars.forEach(s => {
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
@@ -61,15 +61,15 @@ export function CelebrationGlobe({ boards }) {
 
       // Globe sphere
       const grad = ctx.createRadialGradient(cx - 35, cy - 35, 16, cx, cy, r);
-      grad.addColorStop(0, '#44403c');
-      grad.addColorStop(0.7, '#292524');
-      grad.addColorStop(1, '#1c1917');
+      grad.addColorStop(0, '#334155');
+      grad.addColorStop(0.7, '#1e293b');
+      grad.addColorStop(1, '#0f172a');
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.fillStyle = grad;
       ctx.fill();
       ctx.lineWidth = 2;
-      ctx.strokeStyle = 'rgba(251, 191, 36, 0.5)';
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)';
       ctx.stroke();
 
       ctx.strokeStyle = 'rgba(255,255,255,0.1)';
@@ -148,10 +148,10 @@ export function CelebrationGlobe({ boards }) {
   }, [boards, router]);
 
   return (
-    <div style={{ background: '#1c1917', borderRadius: 20, padding: '1rem 1.25rem', color: '#fff', textAlign: 'center', width: '100%' }}>
+    <div style={{ background: '#0f172a', borderRadius: 20, padding: '1rem 1.25rem', color: '#fff', textAlign: 'center', width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
-        <span style={{ fontSize: '.85rem', fontWeight: 700, color: '#fbbf24' }}>🌍 Live Celebration Globe</span>
-        <span style={{ fontSize: '.78rem', color: '#d6d3d1' }}>{tip}</span>
+        <span style={{ fontSize: '.85rem', fontWeight: 700, color: '#7dd3fc' }}>🌍 Live Celebration Globe</span>
+        <span style={{ fontSize: '.78rem', color: '#cbd5e1' }}>{tip}</span>
       </div>
       <canvas ref={canvasRef} width={820} height={320} style={{ width: '100%', height: 'auto', display: 'block', cursor: 'grab' }} />
     </div>

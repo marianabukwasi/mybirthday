@@ -28,8 +28,8 @@ export async function signup(prev, form) {
   if (db.prepare('SELECT 1 FROM users WHERE email = ?').get(email)) return { error: 'That email already has an account.' };
 
   const hex = (v, d) => (/^#[0-9a-f]{6}$/i.test(String(v || '')) ? String(v) : d);
-  const c1 = hex(form.get('color1'), '#e11d48');
-  const c2 = hex(form.get('color2'), '#f59e0b');
+  const c1 = hex(form.get('color1'), '#4f46e5');
+  const c2 = hex(form.get('color2'), '#0ea5e9');
 
   const r = db.prepare(
     'INSERT INTO users (email, name, password_hash, birth_date, time_zone, country) VALUES (?,?,?,?,?,?)'

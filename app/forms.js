@@ -31,8 +31,8 @@ export function SignupForm() {
         </div>
       </div>
       <div className="row">
-        <div><label>Your personal colour 1</label><input name="color1" type="color" defaultValue="#e11d48" /></div>
-        <div><label>Your personal colour 2</label><input name="color2" type="color" defaultValue="#f59e0b" /></div>
+        <div><label>Your personal colour 1</label><input name="color1" type="color" defaultValue="#4f46e5" /></div>
+        <div><label>Your personal colour 2</label><input name="color2" type="color" defaultValue="#0ea5e9" /></div>
       </div>
       <label style={{ marginTop: 12 }}>
         <input type="checkbox" name="confirm" /> I am 18 or older and understand my birth date is protected after setup to safeguard the birthday cycle and offers.
